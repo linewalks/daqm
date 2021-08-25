@@ -1,0 +1,7 @@
+pytest
+pytest-ordering
+pytest-cov
+docstr-coverage
+numpy
+pandas
+sqlalchemy
