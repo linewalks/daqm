@@ -5,3 +5,4 @@ docstr-coverage
 numpy
 pandas
 sqlalchemy
+psycopg2-binary
