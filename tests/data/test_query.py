@@ -103,6 +103,9 @@ class BaseTestQuery:
         (self.data.c.floatA >= self.data.c.floatB).label("float_ge"),
         (self.data.c.floatA + self.data.c.floatB * self.data.c.intA).label("multi_op1"),
         (self.data.c.intB + 100).label("operator_with_num1"),
+        self.data.c.stringA.notlike("%%s%%").label("notlike_with_percent_sign"),
+        self.data.c.stringB.ilike("S______").label("case_insensitive_like"),
+        self.data.c.stringA.notilike("S_").label("notilike_with_underscore")
     )
     result_df = self.query_to_df(query)
 
@@ -121,7 +124,10 @@ class BaseTestQuery:
         "float_gt",
         "float_ge",
         "multi_op1",
-        "operator_with_num1"]
+        "operator_with_num1",
+        "notlike_with_percent_sign",
+        "case_insensitive_like",
+        "notilike_with_underscore"]
 
     for source, result in zip(self.data.to_df().values, result_df.values):
       # Check select simple column
@@ -141,12 +147,15 @@ class BaseTestQuery:
       assert result[11] == (source[self.col_to_idx["floatA"]] > source[self.col_to_idx["floatB"]])
       assert result[12] == (source[self.col_to_idx["floatA"]] >= source[self.col_to_idx["floatB"]])
 
-      assert result[-2] == (source[self.col_to_idx["floatA"]]
+      assert result[-5] == (source[self.col_to_idx["floatA"]]
                             + source[self.col_to_idx["floatB"]]
                             * source[self.col_to_idx["intA"]])
 
       # Check select operator with numeric
-      assert result[-1] == (source[self.col_to_idx["intB"]] + 100)
+      assert result[-4] == (source[self.col_to_idx["intB"]] + 100)
+      assert result[-3] == False
+      assert result[-2]
+      assert result[-1]
 
   def test_where(self):
     query = self.data.query.select(
@@ -163,15 +172,21 @@ class BaseTestQuery:
     query = self.data.query.select(
         self.data.c.intA,
         self.data.c.intB,
+        self.data.c.stringA,
+        self.data.c.stringB
     ).where(
         self.data.c.intA == 123,
         self.data.c.intB > 320,
+        self.data.c.stringA.notlike("%%d%%"),
+        self.data.c.stringB.ilike("STRING%%")
     )
     result_df = self.query_to_df(query)
 
     for result in result_df.values:
       assert result[0] == 123
       assert result[1] > 320
+      assert result[2] == "string"
+      assert result[3] == "string2"
 
   @pytest.mark.parametrize("desc", [True, False])
   def test_orderby(self, desc):

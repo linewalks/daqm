@@ -7,3 +7,6 @@ htmlcov
 
 # pytest
 pytest.ini
+
+# pyenv local
+.python-version
