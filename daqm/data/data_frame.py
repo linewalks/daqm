@@ -251,18 +251,15 @@ class DataFrameQuery:
         res_col = left_col >= right_col
       elif col.operator in ("like", "ilike", "notlike", "notilike"):
         right_col = "^" + right_col + "$"
-        if "%" in right_col:
-          right_col = right_col.replace("%%", r"(.|\s)*")
-        elif "_" in right_col:
-          right_col = right_col.replace("_", r"(.|\s)")
-
-        res_col = left_col.str.match(right_col)
-        if col.operator == "ilike":
-          res_col = left_col.str.match(right_col, case=False)
-        elif col.operator == "notlike":
-          res_col = left_col.str.match(rf"(?!{right_col})")
-        elif col.operator == "notilike":
-          res_col = left_col.str.match(rf"(?!{right_col})", case=False)
+        for char in right_col:
+          if "%" == char:
+            right_col = right_col.replace("%%", r"(.|\s)*")
+          elif "_" == char:
+            right_col = right_col.replace("_", r"(.|\s)")
+        case = col.operator in ("like", "notlike")
+        if col.operator in ("notlike", "notilike"):
+          right_col = rf"(?!{right_col})"
+        res_col = left_col.str.match(right_col, case=case)
       df.loc[:, col.name] = res_col
 
   def _parse_where(self):
