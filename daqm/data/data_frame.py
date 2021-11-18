@@ -251,11 +251,8 @@ class DataFrameQuery:
         res_col = left_col >= right_col
       elif col.operator in ("like", "ilike", "notlike", "notilike"):
         right_col = "^" + right_col + "$"
-        for char in right_col:
-          if "%" == char:
-            right_col = right_col.replace("%%", r"(.|\s)*")
-          elif "_" == char:
-            right_col = right_col.replace("_", r"(.|\s)")
+        right_col = right_col.replace("%%", r"(.|\s)*")
+        right_col = right_col.replace("_", r"(.|\s)")
         case = col.operator in ("like", "notlike")
         if col.operator in ("notlike", "notilike"):
           right_col = rf"(?!{right_col})"
