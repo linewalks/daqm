@@ -195,6 +195,26 @@ class Column:
     other = self._operator_pre_check(other)
     return self._create_operator(other, "ge", ">=")
 
+  def like(self, other):
+    """Column like"""
+    other = self._operator_pre_check(other)
+    return self._create_operator(other, "like", "like")
+
+  def ilike(self, other):
+    """Column ilike"""
+    other = self._operator_pre_check(other)
+    return self._create_operator(other, "ilike", "ilike")
+
+  def notlike(self, other):
+    """Column not like"""
+    other = self._operator_pre_check(other)
+    return self._create_operator(other, "notlike", "notlike")
+
+  def notilike(self, other):
+    """Column not ilike"""
+    other = self._operator_pre_check(other)
+    return self._create_operator(other, "notilike", "notilike")
+
   # !!! IMPORTANT NOTE      ColumnOperator Marker
   # If add operator here, need to implement it's functionality.
   # Search for "ColumnOperator Marker" comments

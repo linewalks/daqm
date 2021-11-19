@@ -188,6 +188,14 @@ class DBTableQuery:
         query = f"{left_col} > {right_col}"
       elif col.operator == "ge":
         query = f"{left_col} >= {right_col}"
+      elif col.operator == "like":
+        query = f"{left_col} like {right_col}"
+      elif col.operator == "ilike":
+        query = f"{left_col} ilike {right_col}"
+      elif col.operator == "notlike":
+        query = f"{left_col} not like {right_col}"
+      elif col.operator == "notilike":
+        query = f"{left_col} not ilike {right_col}"
       self.query_map[col] = f"({query})"
 
   def _parse_query(self):

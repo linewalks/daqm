@@ -249,6 +249,14 @@ class DataFrameQuery:
         res_col = left_col > right_col
       elif col.operator == "ge":
         res_col = left_col >= right_col
+      elif col.operator in ("like", "ilike", "notlike", "notilike"):
+        right_col = "^" + right_col + "$"
+        right_col = right_col.replace("%%", r"(.|\s)*")
+        right_col = right_col.replace("_", r"(.|\s)")
+        case = col.operator in ("like", "notlike")
+        if col.operator in ("notlike", "notilike"):
+          right_col = rf"(?!{right_col})"
+        res_col = left_col.str.match(right_col, case=case)
       df.loc[:, col.name] = res_col
 
   def _parse_where(self):
