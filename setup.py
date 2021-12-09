@@ -4,7 +4,7 @@ from daqm import __version__ as version
 
 
 setup(
-    name="DAQM",
+    name="daqm",
     version=version,
     url="https://github.com/linewalks/daqm",
     author="Linewalks",
@@ -16,5 +16,10 @@ setup(
         "numpy",
         "pandas",
         "sqlalchemy"
+    ],
+    classifiers=[
+        "Programming Language :: Python :: 3",
+        "License :: OSI Approved :: MIT License"
+        "Operating System :: OS Independent"
     ]
 )
