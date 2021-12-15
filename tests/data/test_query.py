@@ -473,6 +473,51 @@ class BaseTestQuery:
       assert result[0] == (int_a in check_list_0)
       assert result[1] == (int_a in check_list_1)
 
+  def test_greatest(self):
+    query = self.data.query.select(
+        func.greatest(
+            self.data.c.intA,
+            self.data.c.intB,
+            self.data.c.floatA,
+            self.data.c.floatB
+        ).label("greatest_int"),
+        func.greatest(
+            self.data.c.dateA,
+            self.data.c.dateB
+        ).label("greatest_date")
+    )
+    result = self.query_to_df(query)
+
+    assert result.iloc[0, 0] == 321
+    assert result.iloc[1, 0] == 320
+    assert result.iloc[2, 0] == 124
+    assert result.iloc[0, 1] == date(2020, 7, 20)
+    assert result.iloc[1, 1] == date(2020, 7, 23)
+    assert result.iloc[2, 1] == date(2020, 7, 22)
+
+  def test_least(self):
+    query = self.data.query.select(
+        func.least(
+            self.data.c.intA,
+            self.data.c.intB,
+            self.data.c.floatA,
+            self.data.c.floatB
+        ).label("least_value"),
+        func.least(
+            self.data.c.stringA,
+            self.data.c.stringB,
+            self.data.c.null
+        ).label("least_str_with_null")
+    )
+    result = self.query_to_df(query)
+
+    assert result.iloc[0, 0] == 0.5342
+    assert result.iloc[1, 0] == 0.5341
+    assert result.iloc[2, 0] == -0.8888
+    assert result.iloc[0, 1] == "string"
+    assert result.iloc[1, 1] == "stragdng"
+    assert result.iloc[2, 1] == "sadadgng"
+
   def test_apply_function(self):
     def apply_func(row):
       new_row = []

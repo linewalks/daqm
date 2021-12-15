@@ -156,6 +156,12 @@ class DBTableQuery:
       elif col.func == "in":
         in_cols = ",".join(self.query_map[in_col] for in_col in col.columns[1:])
         query = f"{self.query_map[col.columns[0]]} in ({in_cols})"
+      elif col.func == "greatest":
+        param = ",".join(self.query_map[each_col] for each_col in col.columns)
+        query = f"greatest({param})"
+      elif col.func == "least":
+        param = ",".join(self.query_map[each_col] for each_col in col.columns)
+        query = f"least({param})"
       else:
         raise NotImplementedError(f"Function {col.func} not implemented for DataFrame.")
       self.query_map[col] = query

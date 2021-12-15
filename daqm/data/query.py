@@ -424,6 +424,14 @@ class QueryFunction:
       columns.append(Column.cast(else_col))
     return FunctionalColumn("case", *columns)
 
+  @staticmethod
+  def greatest(*cols: Union[Column, int, float, str]) -> FunctionalColumn:
+    return FunctionalColumn("greatest", *cols)
+
+  @staticmethod
+  def least(*cols: Union[Column, int, float, str]) -> FunctionalColumn:
+    return FunctionalColumn("least", *cols)
+
   # NULL
   @staticmethod
   def coalesce(*cols: Union[Column, int, float]) -> FunctionalColumn:
