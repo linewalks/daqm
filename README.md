@@ -32,6 +32,8 @@ Data Query Machine!
 * Date Delta
 * Case
 * Coalesce
+* Greatest
+* Least
 * Is Null
 * Is Not Null
 * In
