@@ -195,7 +195,7 @@ class DataFrameQuery:
                   return x[value_col.name]
               else:
                 return None
-            
+
             each_res_col = df.apply(apply_condition, axis=1)
             if each_res_col.empty:
               each_res_col = pd.Series(None, dtype="float64")
@@ -217,6 +217,22 @@ class DataFrameQuery:
             in_col.value if isinstance(in_col, ConstantColumn) else col.name
             for in_col in col.columns[1:]]
         res_col = df[col.columns[0].name].isin(in_cols)
+      elif col.func == "greatest":
+        col_list = [each_col.name for each_col in col.columns]
+        res_col = df[col_list].apply(
+            lambda x: x.max()
+            if x.isna() is False
+            else x.dropna().max(),
+            axis=1
+        )
+      elif col.func == "least":
+        col_list = [each_col.name for each_col in col.columns]
+        res_col = df[col_list].apply(
+            lambda x: x.min()
+            if x.isna() is False
+            else x.dropna().min(),
+            axis=1
+        )
       else:
         raise NotImplementedError(f"Function {col.func} not implemented for DataFrame.")
       df.loc[:, col.name] = res_col
