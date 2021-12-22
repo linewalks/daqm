@@ -235,21 +235,11 @@ class DataFrameQuery:
             axis=1
         )
       elif col.func == "and":
-        def conjunction(*conditions):
-          return functools.reduce(np.logical_and, conditions)
-
-        condition_df_list = []
-        for each_col in col.columns:
-          condition_df_list.append(df[each_col.name])
-        res_col = conjunction(*condition_df_list)
+        condition_df_list = [df[each_col.name] for each_col in col.columns]
+        res_col = functools.reduce(np.logical_and, condition_df_list)
       elif col.func == "or":
-        def disjunction(*conditions):
-          return functools.reduce(np.logical_or, conditions)
-
-        condition_df_list = []
-        for each_col in col.columns:
-          condition_df_list.append(df[each_col.name])
-        res_col = disjunction(*condition_df_list)
+        condition_df_list = [df[each_col.name] for each_col in col.columns]
+        res_col = functools.reduce(np.logical_or, condition_df_list)
       else:
         raise NotImplementedError(f"Function {col.func} not implemented for DataFrame.")
       df.loc[:, col.name] = res_col
