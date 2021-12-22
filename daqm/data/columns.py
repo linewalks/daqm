@@ -381,3 +381,11 @@ class ColumnContainer:
     컬럼 전체를 가져옵니다
     """
     return self.columns
+
+
+def and_(*columns):
+  return FunctionalColumn("and", *columns)
+
+
+def or_(*columns):
+  return FunctionalColumn("or", *columns)

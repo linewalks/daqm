@@ -6,7 +6,7 @@ from abc import abstractmethod
 from collections import defaultdict
 from datetime import date, timedelta
 
-from daqm.data.columns import SimpleColumn, ConstantColumn, FunctionalColumn, OperatedColumn
+from daqm.data.columns import SimpleColumn, ConstantColumn, FunctionalColumn, OperatedColumn, and_, or_
 from daqm.data.query import Query, func
 from tests.utils import TEST_ORDER_DATA
 
@@ -517,6 +517,35 @@ class BaseTestQuery:
     assert result.iloc[0, 1] == "string"
     assert result.iloc[1, 1] == "stragdng"
     assert result.iloc[2, 1] == "sadadgng"
+
+  def test_and(self):
+    query = self.data.query.select(
+        func.case(
+            (
+                and_(self.data.c.dateYear > 2000, self.data.c.dateMonth >= 1), "new"
+            ),
+            (
+                and_(self.data.c.dateYear > 1980, self.data.c.dateMonth <= 12), "old"
+            ),
+            else_col="ancestor"
+        )
+    )
+    result = self.query_to_df(query)
+    assert result.iloc[0, 0] == "new"
+    assert result.iloc[1, 0] == "old"
+    assert result.iloc[2, 0] == "ancestor"
+
+  def test_or(self):
+    query = self.data.query.select(
+        self.data.c.intA
+    ).where(
+        or_(
+            self.data.c.intA == 123,
+            self.data.c.intB == 321
+        )
+    )
+    result = self.query_to_df(query)
+    assert [row == 123 for row in result["intA"]]
 
   def test_apply_function(self):
     def apply_func(row):

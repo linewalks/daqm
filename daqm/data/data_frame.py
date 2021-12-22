@@ -5,6 +5,7 @@ pandas DataFrame을 이용한 Data Wrapper, Query
 """
 
 
+import functools
 import pandas as pd
 import numpy as np
 import warnings
@@ -233,6 +234,22 @@ class DataFrameQuery:
             else x.dropna().min(),
             axis=1
         )
+      elif col.func == "and":
+        def conjunction(*conditions):
+          return functools.reduce(np.logical_and, conditions)
+
+        condition_df_list = []
+        for each_col in col.columns:
+          condition_df_list.append(df[each_col.name])
+        res_col = conjunction(*condition_df_list)
+      elif col.func == "or":
+        def disjunction(*conditions):
+          return functools.reduce(np.logical_or, conditions)
+
+        condition_df_list = []
+        for each_col in col.columns:
+          condition_df_list.append(df[each_col.name])
+        res_col = disjunction(*condition_df_list)
       else:
         raise NotImplementedError(f"Function {col.func} not implemented for DataFrame.")
       df.loc[:, col.name] = res_col
@@ -447,6 +464,7 @@ class DataFrameQuery:
     # agg 함수라면 drop_duplicates해주어야 1줄로 간다.
     if self.query.is_agg:
       self.df = self.df.drop_duplicates()
+
 
 class DataFrameData(Data):
   """

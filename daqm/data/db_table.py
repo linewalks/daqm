@@ -162,6 +162,10 @@ class DBTableQuery:
       elif col.func == "least":
         param = ",".join(self.query_map[each_col] for each_col in col.columns)
         query = f"least({param})"
+      elif col.func == "and":
+        query = " and ".join(self.query_map[each_col] for each_col in col.columns)
+      elif col.func == "or":
+        query = " or ".join(self.query_map[each_col] for each_col in col.columns)
       else:
         raise NotImplementedError(f"Function {col.func} not implemented for DataFrame.")
       self.query_map[col] = query
