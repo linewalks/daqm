@@ -51,6 +51,8 @@ Data Query Machine!
 * `!=` not equal
 * `>` greater than
 * `>=` greater or equal
+* And
+* Or
 
 #### Data Type
 
