@@ -260,7 +260,7 @@ class ConstantColumn(Column):
   """
   상수 컬럼
 
-  :type value: np.number, str, bool
+  :type value: np.number, str, bool, None
   :param value:
     상수 값
   :param str name:
@@ -268,7 +268,7 @@ class ConstantColumn(Column):
   """
   def __init__(
       self,
-      value: Union[np.number, str, bool],
+      value: Union[np.number, str, bool, None],
       name: str = None
   ):
     """
