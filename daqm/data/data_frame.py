@@ -118,6 +118,8 @@ class DataFrameQuery:
     elif isinstance(col, ConstantColumn):
       if col.value is None:
         df[col.name] = None
+      else:
+        df[col.name] = col.value
     elif isinstance(col, FunctionalColumn):
       # NOTE QueryFunction Marker
       # If add new function in QueryFunction, must add it's implementation here.

@@ -479,7 +479,8 @@ class BaseTestQuery:
             self.data.c.intA,
             self.data.c.intB,
             self.data.c.floatA,
-            self.data.c.floatB
+            self.data.c.floatB,
+            ConstantColumn(127)
         ).label("greatest_int"),
         func.greatest(
             self.data.c.dateA,
@@ -490,7 +491,7 @@ class BaseTestQuery:
 
     assert result.iloc[0, 0] == 321
     assert result.iloc[1, 0] == 320
-    assert result.iloc[2, 0] == 124
+    assert result.iloc[2, 0] == 127
     assert result.iloc[0, 1] == date(2020, 7, 20)
     assert result.iloc[1, 1] == date(2020, 7, 23)
     assert result.iloc[2, 1] == date(2020, 7, 22)
