@@ -117,7 +117,7 @@ class DataFrameQuery:
       df.loc[:, col.name] = df[col.target_column_name]
     elif isinstance(col, ConstantColumn):
       if isinstance(col.value, type(None)):
-        df[col.name] = None
+        df[col.name] = pd.NA
     elif isinstance(col, FunctionalColumn):
       # NOTE QueryFunction Marker
       # If add new function in QueryFunction, must add it's implementation here.
