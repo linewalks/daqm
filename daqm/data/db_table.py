@@ -89,7 +89,7 @@ class DBTableQuery:
     elif isinstance(col, ConstantColumn):
       if isinstance(col.value, str):
         query = f"'{col.value}'"
-      elif isinstance(col.value, type(None)):
+      elif col.value is None:
         query = "NULL"
       else:
         query = str(col.value)

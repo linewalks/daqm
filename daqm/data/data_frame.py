@@ -116,8 +116,8 @@ class DataFrameQuery:
         raise ValueError(f"Column {col.target_column_name} not in DataFrame.")
       df.loc[:, col.name] = df[col.target_column_name]
     elif isinstance(col, ConstantColumn):
-      if isinstance(col.value, type(None)):
-        df[col.name] = pd.NA
+      if col.value is None:
+        df[col.name] = None
     elif isinstance(col, FunctionalColumn):
       # NOTE QueryFunction Marker
       # If add new function in QueryFunction, must add it's implementation here.
