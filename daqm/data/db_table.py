@@ -89,6 +89,8 @@ class DBTableQuery:
     elif isinstance(col, ConstantColumn):
       if isinstance(col.value, str):
         query = f"'{col.value}'"
+      elif isinstance(col.value, type(None)):
+        query = "NULL"
       else:
         query = str(col.value)
       self.query_map[col] = query
