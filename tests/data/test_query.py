@@ -442,7 +442,7 @@ class BaseTestQuery:
 
   def test_null(self):
     query = self.data.query.select(
-        func.coalesce(self.data.c.null, "asd"),
+        func.coalesce(ConstantColumn(None), "asd"),
         func.coalesce(self.data.c.null, self.data.c.stringA),
         func.isnull(self.data.c.null),
         func.notnull(self.data.c.null)
