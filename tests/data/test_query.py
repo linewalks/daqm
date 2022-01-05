@@ -548,6 +548,31 @@ class BaseTestQuery:
     result = self.query_to_df(query)
     assert [row == 123 for row in result["intA"]]
 
+  def test_cast(self):
+    query = self.data.query.select(
+        func.cast("1", "int").label("cast_int"),
+        func.cast(1, "boolean").label("cast_boolean"),
+        func.cast(1234567890, "bigint").label("cast_bigint"),
+        func.cast(1.234567890, "double precision").label("cast_dbp"),
+        func.cast("2021-12-27", "date").label("cast_date"),
+        func.cast("2021-12-27 12:00:00", "datetime").label("cast_datetime"),
+        func.cast("2021-12-27 12:00:00", "time").label("cast_time"),
+        func.cast("127.1234567", "real").label("cast_real"),
+        func.cast(10, "varchar").label("cast_varchar"),
+    )
+
+    result_df = self.query_to_df(query)
+
+    assert [types == "int" for types in result_df["cast_int"].map(type)]
+    assert [types == "bool" for types in result_df["cast_boolean"].map(type)]
+    assert [types == "int" for types in result_df["cast_bigint"].map(type)]
+    assert [types == "float" for types in result_df["cast_dbp"].map(type)]
+    assert [types == "datetime.date" for types in result_df["cast_date"].map(type)]
+    assert [types == "datetime.datetime" for types in result_df["cast_datetime"].map(type)]
+    assert [types == "datetime.time" for types in result_df["cast_time"].map(type)]
+    assert [types == "float" for types in result_df["cast_real"].map(type)]
+    assert [types == "str" for types in result_df["cast_varchar"].map(type)]
+
   def test_apply_function(self):
     def apply_func(row):
       new_row = []

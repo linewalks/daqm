@@ -466,6 +466,22 @@ class QueryFunction:
     in_cols = [Column.cast(col) for col in in_cols]
     return FunctionalColumn("in", target_col, *in_cols)
 
+  # Cast
+  @staticmethod
+  def cast(col: Column, target_type: str) -> FunctionalColumn:
+    """
+    Column 객체를 지정한 데이터 유형으로 변환합니다.
+
+    :param col: 변환할 대상 Column 객체
+    :param target_type: 변환할 데이터 유형
+    """
+    if target_type not in [
+        "bigint", "boolean", "date", "datetime", "double precision", "float",
+        "int", "smallint", "real", "char", "varchar", "text", "time"
+    ]:
+      raise ValueError(f"target_type '{target_type}' is not available in Cast function.")
+    return FunctionalColumn("cast", col, target_type=target_type)
+
   # !!! IMPORTANT NOTE      QueryFunction Marker
   # If add function here, need to implement it's functionality.
   # Search for "QueryFunction Marker" comments

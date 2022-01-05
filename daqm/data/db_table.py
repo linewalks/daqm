@@ -168,6 +168,12 @@ class DBTableQuery:
         query = " and ".join(self.query_map[each_col] for each_col in col.columns)
       elif col.func == "or":
         query = " or ".join(self.query_map[each_col] for each_col in col.columns)
+      elif col.func == "cast":
+        if col.options["target_type"] == "datetime":
+          cast_type = "timestamp"
+        else:
+          cast_type = col.options["target_type"]
+        query = f"cast({self.query_map[col.columns[0]]} AS {cast_type})"
       else:
         raise NotImplementedError(f"Function {col.func} not implemented for DataFrame.")
       self.query_map[col] = query
