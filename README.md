@@ -37,6 +37,7 @@ Data Query Machine!
 * Is Null
 * Is Not Null
 * In
+* Cast
 
 #### Operator
 
@@ -51,6 +52,10 @@ Data Query Machine!
 * `!=` not equal
 * `>` greater than
 * `>=` greater or equal
+* Like
+* ILike
+* Not Like
+* Not ILike
 * And
 * Or
 
