@@ -245,36 +245,31 @@ class DataFrameQuery:
       elif col.func == "cast":
         # TODO: numeric or decimal: 사용자 지정 정밀도 유형 추가
         # TODO: interval 추가(입력되는 unit에 따라 to_timedelta 함수의 unit 파라미터 변경)
-        if col.options["target_type"] == "bigint":  # integer(8)
-          res_col = df[col.columns[0].name].astype("float").astype("Int64")
-        elif col.options["target_type"] == "boolean":
-          res_col = df[col.columns[0].name].astype("boolean")
-        elif col.options["target_type"] == "char":
-          res_col = df[col.columns[0].name].astype(str)
-        elif col.options["target_type"] == "date":
-          res_col = df[col.columns[0].name].astype("datetime64[ns]")
+        convert_map_dict = {
+            "bigint": ["float", "Int64"],
+            "int": ["float", "Int32"],
+            "smallint": ["float", "Int16"],
+            "boolean": ["boolean"],
+            "double precision": ["float64"],
+            "float": ["float64"],
+            "real": ["float32"],
+            "date": ["datetime64[ns]"],
+            "datetime": ["datetime64[ns]"],
+            "time": ["datetime64[ns]"],
+            "char": [str],
+            "varchar": [str],
+            "text": [str]
+        }
+        target_type_list = convert_map_dict.get(col.options["target_type"])
+
+        res_col = df[col.columns[0].name]
+        for target_type in target_type_list:
+          res_col = res_col.astype(target_type)
+
+        if col.options["target_type"] == "date":
           res_col = res_col.dt.date
-        elif col.options["target_type"] == "datetime":
-          res_col = df[col.columns[0].name].astype("datetime64[ns]")
-        elif col.options["target_type"] == "double precision":  # float(64)
-          res_col = df[col.columns[0].name].astype("float64")
-        elif col.options["target_type"] == "float":  # float(64)
-          res_col = df[col.columns[0].name].astype("float64")
-        elif col.options["target_type"] == "int":  # integer(4)
-          res_col = df[col.columns[0].name].astype("float").astype("Int32")
-        elif col.options["target_type"] == "real":  # float(32)
-          res_col = df[col.columns[0].name].astype("float32")
-        elif col.options["target_type"] == "smallint":  # integer(2)
-          res_col = df[col.columns[0].name].astype("float").astype("Int16")
-        elif col.options["target_type"] == "varchar":
-          res_col = df[col.columns[0].name].astype(str)
-        elif col.options["target_type"] == "text":
-          res_col = df[col.columns[0].name].astype(str)
         elif col.options["target_type"] == "time":
-          res_col = df[col.columns[0].name].astype("datetime64[ns]")
           res_col = res_col.dt.time
-        else:
-          raise ValueError(f"target_type '{col.options['target_type']}' is not available in Cast function.")
       else:
         raise NotImplementedError(f"Function {col.func} not implemented for DataFrame.")
       df.loc[:, col.name] = res_col
