@@ -466,6 +466,18 @@ class QueryFunction:
     in_cols = [Column.cast(col) for col in in_cols]
     return FunctionalColumn("in", target_col, *in_cols)
 
+# Not In
+  @staticmethod
+  def notin_(target_col: Column, in_cols: List[Union[int, float, str]]):
+    """
+    컬럼의 값이 입력된 리스트 중 있는지 확인합니다. ~isin, not in
+
+    :param target_col: 확인하고 싶은 컬럼
+    :param in_cols: 값 리스트
+    """
+    in_cols = [Column.cast(col) for col in in_cols]
+    return FunctionalColumn("notin", target_col, *in_cols)
+
   # Cast
   @staticmethod
   def cast(col: Column, target_type: str) -> FunctionalColumn:

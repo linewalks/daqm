@@ -220,6 +220,11 @@ class DataFrameQuery:
             in_col.value if isinstance(in_col, ConstantColumn) else col.name
             for in_col in col.columns[1:]]
         res_col = df[col.columns[0].name].isin(in_cols)
+      elif col.func == "notin":
+        in_cols = [
+            in_col.value if isinstance(in_col, ConstantColumn) else col.name
+            for in_col in col.columns[1:]]
+        res_col = ~df[col.columns[0].name].isin(in_cols)
       elif col.func == "greatest":
         col_list = [each_col.name for each_col in col.columns]
         res_col = df[col_list].apply(

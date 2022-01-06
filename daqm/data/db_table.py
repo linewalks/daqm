@@ -158,6 +158,9 @@ class DBTableQuery:
       elif col.func == "in":
         in_cols = ",".join(self.query_map[in_col] for in_col in col.columns[1:])
         query = f"{self.query_map[col.columns[0]]} in ({in_cols})"
+      elif col.func == "notin":
+        in_cols = ",".join(self.query_map[in_col] for in_col in col.columns[1:])
+        query = f"{self.query_map[col.columns[0]]} not in ({in_cols})"
       elif col.func == "greatest":
         param = ",".join(self.query_map[each_col] for each_col in col.columns)
         query = f"greatest({param})"

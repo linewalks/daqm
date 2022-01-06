@@ -473,6 +473,22 @@ class BaseTestQuery:
       assert result[0] == (int_a in check_list_0)
       assert result[1] == (int_a in check_list_1)
 
+  def test_notin(self):
+    check_list_0 = [123, 125]
+    check_list_1 = [-0.123, 111]
+    query = self.data.query.select(
+        func.notin_(self.data.c.intA, check_list_0),
+        func.notin_(self.data.c.intA, check_list_1)
+    )
+
+    result_df = self.query_to_df(query)
+
+    for source, result in zip(self.data.to_df().values, result_df.values):
+      int_a = source[self.col_to_idx["intA"]]
+
+      assert result[0] == (int_a not in check_list_0)
+      assert result[1] == (int_a not in check_list_1)
+
   def test_greatest(self):
     query = self.data.query.select(
         func.greatest(
