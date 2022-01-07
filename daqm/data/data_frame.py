@@ -215,11 +215,14 @@ class DataFrameQuery:
         res_col = pd.isnull(df[col.columns[0].name])
       elif col.func == "notnull":
         res_col = pd.notnull(df[col.columns[0].name])
-      elif col.func == "in":
+      elif col.func in ("in", "notin"):
         in_cols = [
             in_col.value if isinstance(in_col, ConstantColumn) else col.name
-            for in_col in col.columns[1:]]
+            for in_col in col.columns[1:]
+        ]
         res_col = df[col.columns[0].name].isin(in_cols)
+        if col.func == "notin":
+          res_col = ~res_col
       elif col.func == "greatest":
         col_list = [each_col.name for each_col in col.columns]
         res_col = df[col_list].apply(
