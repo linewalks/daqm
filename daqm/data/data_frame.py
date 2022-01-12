@@ -154,6 +154,12 @@ class DataFrameQuery:
         res_col = df[col.columns[0].name].abs()
       elif col.func == "round":
         res_col = df[col.columns[0].name].round(col.options["decimals"])
+      elif col.func == "ceil":
+        res_col = np.ceil(df[col.columns[0].name])
+      elif col.func == "trunc":
+        res_col = np.trunc(df[col.columns[0].name])
+      elif col.func == "floor":
+        res_col = np.floor(df[col.columns[0].name])
       elif col.func == "rank":
         if col.columns[1] is None:
           res_col = df[col.columns[0].name].rank()

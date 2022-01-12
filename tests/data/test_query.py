@@ -1,6 +1,7 @@
-import pytest
-import pandas as pd
+import math
 import numpy as np
+import pandas as pd
+import pytest
 
 from abc import abstractmethod
 from collections import defaultdict
@@ -377,7 +378,10 @@ class BaseTestQuery:
     query = self.data.query.select(
         func.abs(self.data.c.floatA),
         func.abs(self.data.c.floatB),
-        func.round(self.data.c.floatA, decimals)
+        func.round(self.data.c.floatA, decimals),
+        func.ceil(self.data.c.floatA),
+        func.trunc(self.data.c.floatA),
+        func.floor(self.data.c.floatA)
     )
 
     result_df = self.query_to_df(query)
@@ -389,6 +393,9 @@ class BaseTestQuery:
       assert abs(float_a) == result[0]
       assert abs(float_b) == result[1]
       assert round(float_a, decimals) == result[2]
+      assert math.ceil(float_a) == result[3]
+      assert math.trunc(float_a) == result[4]
+      assert math.floor(float_a) == result[5]
 
   def test_date_function(self):
     query = self.data.query.select(

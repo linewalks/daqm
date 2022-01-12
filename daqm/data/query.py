@@ -353,6 +353,27 @@ class QueryFunction:
     """
     return FunctionalColumn("round", col, decimals=decimals)
 
+  @staticmethod
+  def ceil(col: Column) -> FunctionalColumn:
+    """
+    올림 nearest integer greater than or equal to argument
+    """
+    return FunctionalColumn("ceil", col)
+
+  @staticmethod
+  def trunc(col: Column) -> FunctionalColumn:
+    """
+    내림 truncate toward zero
+    """
+    return FunctionalColumn("trunc", col)
+
+  @staticmethod
+  def floor(col: Column) -> FunctionalColumn:
+    """
+    내림 nearest integer less than or equal to argument
+    """
+    return FunctionalColumn("floor", col)
+
   # Date Functions
   @staticmethod
   def date_diff(end_date_col: Column, start_date_col: Column) -> FunctionalColumn:
