@@ -116,6 +116,10 @@ class DBTableQuery:
           query = f"array_agg({self.query_map[col.columns[0]]})"
       elif col.func == "abs":
         query = f"abs({self.query_map[col.columns[0]]})"
+      elif col.func == "round":
+        query = f"round({self.query_map[col.columns[0]]}::numeric, {col.options['decimals']})"
+      elif col.func in ("ceil", "trunc", "floor"):
+        query = f"{col.func}({self.query_map[col.columns[0]]}::numeric)"
       elif col.func == "rank":
         query = "rank() over ("
         if col.columns[1] is not None:
