@@ -372,10 +372,12 @@ class BaseTestQuery:
     ).groupby(self.data.c.intA)
     result_df = self.query_to_df(query)
 
-  def test_numeric_function(self):
+  @pytest.mark.parametrize("decimals", [-1, 1, 2])
+  def test_numeric_function(self, decimals):
     query = self.data.query.select(
         func.abs(self.data.c.floatA),
-        func.abs(self.data.c.floatB)
+        func.abs(self.data.c.floatB),
+        func.round(self.data.c.floatA, decimals)
     )
 
     result_df = self.query_to_df(query)
@@ -386,6 +388,7 @@ class BaseTestQuery:
 
       assert abs(float_a) == result[0]
       assert abs(float_b) == result[1]
+      assert round(float_a, decimals) == result[2]
 
   def test_date_function(self):
     query = self.data.query.select(

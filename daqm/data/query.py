@@ -346,6 +346,13 @@ class QueryFunction:
     """
     return FunctionalColumn("abs", col)
 
+  @staticmethod
+  def round(col: Column, decimals: int = 0) -> FunctionalColumn:
+    """
+    반올림 round
+    """
+    return FunctionalColumn("round", col, decimals=decimals)
+
   # Date Functions
   @staticmethod
   def date_diff(end_date_col: Column, start_date_col: Column) -> FunctionalColumn:
