@@ -25,6 +25,10 @@ Data Query Machine!
 * Number of Unique
 * All
 * Absolute
+* Round
+* Ceil
+* Floor
+* Trunc
 * Rank
 * Date Diff
 * Date Year
@@ -37,6 +41,7 @@ Data Query Machine!
 * Is Null
 * Is Not Null
 * In
+* Not In
 * Cast
 
 #### Operator

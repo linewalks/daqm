@@ -4,4 +4,4 @@ DQ
 :copyright 2021 by Linewalks.
 """
 
-__version__ = "0.1.4"
+__version__ = "0.1.5"
