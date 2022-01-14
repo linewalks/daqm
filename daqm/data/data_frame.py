@@ -152,7 +152,7 @@ class DataFrameQuery:
           res_col = pd.Series(res_col, index=df.index)
         else:
           res_col = res_col.apply(lambda x: col.options["string_delimiter"].join(map(str, x)))
-      elif col.func in ["percentile_cont", "percentile_disc"]:
+      elif col.func in ("percentile_cont", "percentile_disc"):
         res_col = df[col.columns[0].name].quantile(
             q=col.options["q"],
             interpolation="linear" if col.func == "percentile_cont" else "nearest"

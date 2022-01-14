@@ -19,8 +19,9 @@ class Query:
   """
 
   def __init__(
-          self,
-          data: "Data"):
+      self,
+      data: "Data"
+  ):
     """
     Initialize self. See help(type(self)) for accurate signature.
     """
@@ -356,7 +357,8 @@ class QueryFunction:
     :param (int | float) q:
       Quantile to compute, which must be between 0 and 1 inclusive.
     """
-    assert q >= 0 and q <= 1, "Quantile must be between 0 and 1"
+    if q < 0 or q > 1:
+      raise ValueError("q must be between 0 and 1")
     return FunctionalColumn("percentile_cont", col, q=q, is_agg=True)
 
   @staticmethod
@@ -369,7 +371,8 @@ class QueryFunction:
     :param (int | float) q:
       Quantile to compute, which must be between 0 and 1 inclusive.
     """
-    assert q >= 0 and q <= 1, "Quantile must be between 0 and 1"
+    if q < 0 or q > 1:
+      raise ValueError("q must be between 0 and 1")
     return FunctionalColumn("percentile_disc", col, q=q, is_agg=True)
 
   # Numeric Functions
