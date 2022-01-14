@@ -374,6 +374,17 @@ class QueryFunction:
     if q < 0 or q > 1:
       raise ValueError("q must be between 0 and 1")
     return FunctionalColumn("percentile_disc", col, q=q, is_agg=True)
+  
+  """
+  percentile_disc 참고
+  기준 값으로부터의 가까운 첫 번째 값이 2개 존재할 때 값 선택 기준
+  예) [1, 2, 3, 5] data에서의 median 값
+  연속 분포를 가정했을 때 median 값: 2.5 (percentile_cont)
+  2.5를 기준으로 2와 3사이의 차이의 값이 0.5로 동일
+  
+  db: 2와 3 중에서 아랫값 선택 (median: 2)
+  data_frame: 2와 3 중에서 윗값을 선택 (median: 3)
+  """
 
   # Numeric Functions
   @staticmethod
