@@ -20,5 +20,6 @@ class TestDBTableQuery(BaseTestQuery):
       self.conn = conn
       self.data = DBTableData.from_df(self.conn, self.df)
       self.data2 = DBTableData.from_df(self.conn, self.df2)
+      self.data3 = DBTableData.from_df(self.conn, self.df3)
     except (OperationalError, ArgumentError):
       pytest.skip("Connecting Data Test DB Failed. Skipping tests.")

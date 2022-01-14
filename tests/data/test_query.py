@@ -8,6 +8,7 @@ from collections import defaultdict
 from datetime import date, timedelta
 
 from daqm.data.columns import SimpleColumn, ConstantColumn, FunctionalColumn, OperatedColumn, and_, or_
+from daqm.data.db_table import DBTableData
 from daqm.data.query import Query, func
 from tests.utils import TEST_ORDER_DATA
 
@@ -83,6 +84,8 @@ class BaseTestQuery:
         [123, 320, 0.123123, 0.975]
     ], columns=cols2)
     self.col_to_idx2 = {col: idx for idx, col in enumerate(cols)}
+
+    self.df3 = pd.DataFrame({"intC": [1, 2, 3, 5, np.nan]})
 
   def query_to_df(self, query: Query):
     return query.apply().to_df()
@@ -316,6 +319,7 @@ class BaseTestQuery:
         func.max(self.data.c.intB),
         func.avg(self.data.c.intB),
         func.mean(self.data.c.intB).label("mean"),
+        func.stddev(self.data.c.intB),
         func.count(self.data.c.intB),
         func.nunique(self.data.c.intB),
         func.unique(self.data.c.intB),
@@ -334,18 +338,38 @@ class BaseTestQuery:
     assert result_values[2] == np.max(target_col_values)
     assert result_values[3] == np.mean(target_col_values)
     assert result_values[4] == np.mean(target_col_values)
-    assert result_values[5] == len(target_col_values)
-    assert result_values[6] == len(set(target_col_values))
-
-    ary_values = result_values[7]
-    if isinstance(ary_values, str):
-      ary_values = list(map(int, ary_values.split(",")))
-    assert set(ary_values) == set(target_col_values)
+    assert np.float32(result_values[5]) == np.nanstd(target_col_values, dtype=np.float32, ddof=1)
+    assert result_values[6] == len(target_col_values)
+    assert result_values[7] == len(set(target_col_values))
 
     ary_values = result_values[8]
     if isinstance(ary_values, str):
       ary_values = list(map(int, ary_values.split(",")))
+    assert set(ary_values) == set(target_col_values)
+
+    ary_values = result_values[9]
+    if isinstance(ary_values, str):
+      ary_values = list(map(int, ary_values.split(",")))
     assert ary_values == list(target_col_values)
+
+    # percentile function test using [1, 2, 3, 5]
+    query = self.data3.query.select(
+        func.percentile_cont(self.data3.c.intC, 0.5),
+        func.percentile_disc(self.data3.c.intC, 0.5)
+    )
+
+    result_df = self.query_to_df(query)
+
+    assert len(result_df) == 1
+
+    target_col_values = self.data3.to_df().intC.values
+
+    result_values = result_df.values[0]
+    assert result_values[0] == np.nanquantile(target_col_values, 0.5, method="linear")
+    if isinstance(self.data3, DBTableData):
+      assert result_values[1] == np.nanquantile(target_col_values, 0.5, method="lower")
+    else:
+      assert result_values[1] == np.nanquantile(target_col_values, 0.5, method="higher")
 
   def test_agg_function_error(self):
     with pytest.raises(ValueError, match=r"Column .* must be in group col!!"):
