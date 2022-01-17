@@ -17,9 +17,11 @@ class Query:
 
   :param Data data: 쿼리를 실행할 Base 데이터
   """
+
   def __init__(
       self,
-      data: "Data"):
+      data: "Data"
+  ):
     """
     Initialize self. See help(type(self)) for accurate signature.
     """
@@ -162,7 +164,7 @@ class Query:
     result_list = []
     if isinstance(col, target_cls):
       result_list.append(col)
-      
+
     for child in col.children:
       result_list.extend(self._find_columns_in_children(child, target_cls))
     return result_list
@@ -209,16 +211,16 @@ class Query:
     not_in_agg_list = []
     for col in self.select_list:
       col_in_agg, col_not_in_agg = self._find_columns_need_agg(col)
-    
+
       in_agg_list.extend(col_in_agg)
-      not_in_agg_list.extend(col_not_in_agg)    
+      not_in_agg_list.extend(col_not_in_agg)
 
     # 둘 다 있을때만 문제
     if in_agg_list and not_in_agg_list:
       for col in not_in_agg_list:
         if col not in group_simple_col_set:
           raise ValueError(f"Column {col.name} must be in group col!!")
-    
+
     return len(in_agg_list) > 0
 
   def apply(self) -> "Data":
@@ -288,6 +290,13 @@ class QueryFunction:
     return QueryFunction.avg(col)
 
   @staticmethod
+  def stddev(col: Column) -> FunctionalColumn:
+    """
+    표준편차 stddev (Exclude NA/null values)
+    """
+    return FunctionalColumn("stddev", col, is_agg=True)
+
+  @staticmethod
   def count(col: Column) -> FunctionalColumn:
     """
     수 count
@@ -337,6 +346,45 @@ class QueryFunction:
         to_string=False,
         string_delimiter=string_delimiter,
         is_agg=True)
+
+  @staticmethod
+  def percentile_cont(col: Column, q: Union[int, float]) -> FunctionalColumn:
+    """
+    연속 분포에 대한 quantile 결과 값 (Exclude NA/null values)
+    db: PostgreSQL의 "percentile_cont"와 동일
+    data_frame: numpy의 "nanquantile(..., method="linear", ...)와 동일
+    
+    :param (int | float) q:
+      Quantile to compute, which must be between 0 and 1 inclusive.
+    """
+    if q < 0 or q > 1:
+      raise ValueError("q must be between 0 and 1")
+    return FunctionalColumn("percentile_cont", col, q=q, is_agg=True)
+
+  @staticmethod
+  def percentile_disc(col: Column, q: Union[int, float]) -> FunctionalColumn:
+    """
+    이산 분포에 대한 quantile 결과 값 (Exclude NA/null values)
+    db: PostgreSQL의 "percentile_disc"와 동일
+    data_frame: numpy의 "nanquantile(..., method="nearest", ...)와 동일
+    
+    :param (int | float) q:
+      Quantile to compute, which must be between 0 and 1 inclusive.
+    """
+    if q < 0 or q > 1:
+      raise ValueError("q must be between 0 and 1")
+    return FunctionalColumn("percentile_disc", col, q=q, is_agg=True)
+  
+  """
+  percentile_disc 참고
+  기준 값으로부터의 가까운 첫 번째 값이 2개 존재할 때 값 선택 기준
+  예) [1, 2, 3, 5] data에서의 median 값
+  연속 분포를 가정했을 때 median 값: 2.5 (percentile_cont)
+  2.5를 기준으로 2와 3사이의 차이의 값이 0.5로 동일
+  
+  db: 2와 3 중에서 아랫값 선택 (median: 2)
+  data_frame: 2와 3 중에서 윗값을 선택 (median: 3)
+  """
 
   # Numeric Functions
   @staticmethod

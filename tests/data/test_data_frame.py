@@ -14,3 +14,4 @@ class TestDataFrameQuery(BaseTestQuery):
     super().create_data()
     self.data = DataFrameData(self.df)
     self.data2 = DataFrameData(self.df2)
+    self.data3 = DataFrameData(self.df3)

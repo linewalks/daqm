@@ -98,7 +98,7 @@ class DBTableQuery:
       # NOTE QueryFunction Marker
       # If add new function in QueryFunction, must add it's implementation here.
       query = None
-      if col.func in ["sum", "min", "max", "count", "avg"]:
+      if col.func in ["sum", "min", "max", "count", "avg", "stddev"]:
         query = f"{col.func}({self.query_map[col.columns[0]]})"
       elif col.func == "unique":
         if col.options["to_string"]:
@@ -114,6 +114,8 @@ class DBTableQuery:
           query = f"string_agg({self.query_map[col.columns[0]]}, '{delimiter}')"
         else:
           query = f"array_agg({self.query_map[col.columns[0]]})"
+      elif col.func in ["percentile_cont", "percentile_disc"]:
+        query = f"{col.func}({col.options['q']}) within group (order by {self.query_map[col.columns[0]]})"
       elif col.func == "abs":
         query = f"abs({self.query_map[col.columns[0]]})"
       elif col.func == "round":
