@@ -141,6 +141,12 @@ class DBTableQuery:
         query = f"date({year_col}::text || '-' ||   {month_col}::text || '-' ||  {day_col}::text)"
       elif col.func == "date_delta":
         query = f"cast({self.query_map[col.columns[0]]} || ' days' as interval)"
+      elif col.func == "time_diff":
+        end_col = self.query_map[col.columns[0]]
+        start_col = self.query_map[col.columns[1]]
+        query = f"age({end_col}::timestamp, {start_col}::timestamp)"
+      elif col.func == "extract":
+        query = f"extract('{col.options['field_value']}' from {self.query_map[col.columns[0]]})"
       elif col.func == "case":
         query = "case"
         for idx in range(0, len(col.columns), 2):
