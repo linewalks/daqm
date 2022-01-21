@@ -389,3 +389,15 @@ def and_(*columns):
 
 def or_(*columns):
   return FunctionalColumn("or", *columns)
+
+
+def between(col: Column, beween_lower: Column, between_higher: Column) -> FunctionalColumn:
+  """
+  col 값이 between_lower와 between_higher 사이에 있는지 확인합니다.
+  (check: between_lower value <= col value and col value <= between_higher value)
+
+  :param col: 비교의 대상이 되는 컬럼
+  :param beween_lower: 사이값 아랫 비교 컬럼
+  :param between_higher: 사이값 윗 비교 컬럼
+  """
+  return FunctionalColumn("between", col, beween_lower, between_higher)

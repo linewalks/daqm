@@ -8,7 +8,13 @@ from collections import defaultdict
 from datetime import date, timedelta
 from dateutil.relativedelta import relativedelta
 
-from daqm.data.columns import SimpleColumn, ConstantColumn, FunctionalColumn, OperatedColumn, and_, or_
+from daqm.data.columns import (
+    SimpleColumn,
+    ConstantColumn,
+    FunctionalColumn,
+    OperatedColumn,
+    and_, or_, between
+)
 from daqm.data.db_table import DBTableData
 from daqm.data.query import Query, func
 from tests.utils import TEST_ORDER_DATA
@@ -666,6 +672,24 @@ class BaseTestQuery:
     )
     result = self.query_to_df(query)
     assert [row == 123 for row in result["intA"]]
+
+  def test_between(self):
+    query = self.data.query.select(
+        between(self.data.c.dateB, self.data.c.dateA, self.data.c.datetimeB).label("btw_datetime"),
+        between(self.data.c.intA, self.data.c.floatB, self.data.c.intB).label("btw_number")
+    )
+    result_df = self.query_to_df(query)
+
+    for source, result in zip(self.data.to_df().values, result_df.values):
+      date_a = source[self.col_to_idx["dateA"]]
+      date_b = source[self.col_to_idx["dateB"]]
+      datetime_b = source[self.col_to_idx["datetimeB"]]
+      int_a = source[self.col_to_idx["intA"]]
+      int_b = source[self.col_to_idx["intB"]]
+      float_b = source[self.col_to_idx["floatB"]]
+
+      assert result[0] == (date_a <= date_b and date_b <= datetime_b)
+      assert result[1] == (float_b <= int_a and int_a <= int_b)
 
   def test_cast(self):
     query = self.data.query.select(

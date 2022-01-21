@@ -183,6 +183,11 @@ class DBTableQuery:
         query = " and ".join(self.query_map[each_col] for each_col in col.columns)
       elif col.func == "or":
         query = " or ".join(self.query_map[each_col] for each_col in col.columns)
+      elif col.func == "between":
+        target_col = self.query_map[col.columns[0]]
+        lower_col = self.query_map[col.columns[1]]
+        higher_col = self.query_map[col.columns[2]]
+        query = f"{target_col} between {lower_col} and {higher_col}"
       elif col.func == "cast":
         if col.options["target_type"] == "datetime":
           cast_type = "timestamp"
