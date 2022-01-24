@@ -197,7 +197,7 @@ class DataFrameQuery:
         if np.issubdtype(df[col.columns[0].name].dtype, relativedelta):
           res_col = df.apply(lambda x: eval(f"x[col.columns[0].name].{col.options['field_value']}s"), axis=1)
         elif np.issubdtype(df[col.columns[0].name].dtype, np.datetime64):
-          res_col = df.apply(lambda x: eval(f"x[col.columns[0].name].{col.options['field_value']}"), axis=1)
+          res_col = eval(f"df[col.columns[0].name].dt.{col.options['field_value']}")
         else:
           raise ValueError(
               "Expected column type to be one of ('date', 'datetime', 'relativedelta'), you might need to add explicit type casts.")
