@@ -272,7 +272,10 @@ class DataFrameQuery:
         condition_df_list = [df[each_col.name] for each_col in col.columns]
         res_col = functools.reduce(np.logical_or, condition_df_list)
       elif col.func == "between":
-        res_col = (df[col.columns[1].name] <= df[col.columns[0].name]) & (df[col.columns[0].name] <= df[col.columns[2].name])
+        target_col = col.columns[0].value if isinstance(col.columns[0], ConstantColumn) else df[col.columns[0].name]
+        lower_col = col.columns[1].value if isinstance(col.columns[1], ConstantColumn) else df[col.columns[1].name]
+        higher_col = col.columns[2].value if isinstance(col.columns[2], ConstantColumn) else df[col.columns[2].name]
+        res_col = (lower_col <= target_col) & (target_col <= higher_col)
       elif col.func == "cast":
         # TODO: numeric or decimal: 사용자 지정 정밀도 유형 추가
         # TODO: interval 추가(입력되는 unit에 따라 to_timedelta 함수의 unit 파라미터 변경)

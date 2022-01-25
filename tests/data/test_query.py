@@ -676,7 +676,10 @@ class BaseTestQuery:
   def test_between(self):
     query = self.data.query.select(
         between(self.data.c.dateB, self.data.c.dateA, self.data.c.datetimeB).label("btw_datetime"),
-        between(self.data.c.intA, self.data.c.floatB, self.data.c.intB).label("btw_number")
+        between(self.data.c.intA, self.data.c.floatB, self.data.c.intB).label("btw_number"),
+        between(self.data.c.intA, self.data.c.floatB, 123).label("btw_num_n_col"),
+        between(self.data.c.stringA, "strb", self.data.c.stringB).label("btw_str_n_col"),
+        between(8, self.data.c.dateMonth, self.data.c.dateDay).label("btw_num_n_col2")
     )
     result_df = self.query_to_df(query)
 
@@ -687,9 +690,16 @@ class BaseTestQuery:
       int_a = source[self.col_to_idx["intA"]]
       int_b = source[self.col_to_idx["intB"]]
       float_b = source[self.col_to_idx["floatB"]]
+      string_a = source[self.col_to_idx["stringA"]]
+      string_b = source[self.col_to_idx["stringB"]]
+      date_month = source[self.col_to_idx["dateMonth"]]
+      date_day = source[self.col_to_idx["dateDay"]]
 
       assert result[0] == (date_a <= date_b and date_b <= datetime_b)
       assert result[1] == (float_b <= int_a and int_a <= int_b)
+      assert result[2] == (float_b <= int_a and int_a <= 123)
+      assert result[3] == ("strb" <= string_a and string_a <= string_b)
+      assert result[4] == (date_month <= 8 and 8 <= date_day)
 
   def test_cast(self):
     query = self.data.query.select(
