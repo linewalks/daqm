@@ -389,3 +389,23 @@ def and_(*columns):
 
 def or_(*columns):
   return FunctionalColumn("or", *columns)
+
+
+def between(
+    col: Union[Column, int, float, str],
+    between_lower: Union[Column, int, float, str],
+    between_higher: Union[Column, int, float, str]
+) -> FunctionalColumn:
+  """
+  col 값이 between_lower와 between_higher 사이에 있는지 확인합니다.
+  (check: between_lower value <= col value and col value <= between_higher value)
+
+  :param col: 비교의 대상
+  :param beween_lower: 아랫 값(컬럼)
+  :param between_higher: 윗 값(컬럼)
+  """
+
+  col = Column.cast(col)
+  between_lower = Column.cast(between_lower)
+  between_higher = Column.cast(between_higher)
+  return FunctionalColumn("between", col, between_lower, between_higher)

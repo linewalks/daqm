@@ -13,6 +13,7 @@ import sqlalchemy
 
 from collections import defaultdict
 from datetime import datetime
+from dateutil.relativedelta import relativedelta
 from typing import List, Callable, Generator
 
 from daqm.data.data import Data
@@ -190,6 +191,16 @@ class DataFrameQuery:
           res_col = pd.to_timedelta(value_col.value, unit="days")
         else:
           res_col = pd.to_timedelta(df[value_col.name], unit="days")
+      elif col.func == "time_diff":
+        res_col = df.apply(lambda x: relativedelta(x[col.columns[0].name], x[col.columns[1].name]), axis=1)
+      elif col.func == "extract":
+        if np.issubdtype(df[col.columns[0].name].dtype, relativedelta):
+          res_col = df.apply(lambda x: eval(f"x[col.columns[0].name].{col.options['field_value']}s"), axis=1)
+        elif np.issubdtype(df[col.columns[0].name].dtype, np.datetime64):
+          res_col = eval(f"df[col.columns[0].name].dt.{col.options['field_value']}")
+        else:
+          raise ValueError(
+              "Expected column type to be one of ('date', 'datetime', 'relativedelta'), you might need to add explicit type casts.")
       elif col.func == "case":
         res_col = pd.Series(None, index=df.index)
         for idx in range(0, len(col.columns), 2):
@@ -260,6 +271,11 @@ class DataFrameQuery:
       elif col.func == "or":
         condition_df_list = [df[each_col.name] for each_col in col.columns]
         res_col = functools.reduce(np.logical_or, condition_df_list)
+      elif col.func == "between":
+        target_col = col.columns[0].value if isinstance(col.columns[0], ConstantColumn) else df[col.columns[0].name]
+        lower_col = col.columns[1].value if isinstance(col.columns[1], ConstantColumn) else df[col.columns[1].name]
+        higher_col = col.columns[2].value if isinstance(col.columns[2], ConstantColumn) else df[col.columns[2].name]
+        res_col = (lower_col <= target_col) & (target_col <= higher_col)
       elif col.func == "cast":
         # TODO: numeric or decimal: 사용자 지정 정밀도 유형 추가
         # TODO: interval 추가(입력되는 unit에 따라 to_timedelta 함수의 unit 파라미터 변경)

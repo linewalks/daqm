@@ -6,8 +6,15 @@ import pytest
 from abc import abstractmethod
 from collections import defaultdict
 from datetime import date, timedelta
+from dateutil.relativedelta import relativedelta
 
-from daqm.data.columns import SimpleColumn, ConstantColumn, FunctionalColumn, OperatedColumn, and_, or_
+from daqm.data.columns import (
+    SimpleColumn,
+    ConstantColumn,
+    FunctionalColumn,
+    OperatedColumn,
+    and_, or_, between
+)
 from daqm.data.db_table import DBTableData
 from daqm.data.query import Query, func
 from tests.utils import TEST_ORDER_DATA
@@ -67,15 +74,27 @@ class BaseTestQuery:
         "floatA", "floatB",
         "stringA", "stringB",
         "dateA", "dateB",
+        "datetimeA", "datetimeB",
         "dateYear", "dateMonth", "dateDay",
         "null"]
     self.df = pd.DataFrame([
-        [123, 321, 0.5342, 0.7895, "string", "string2", "2020-07-15", "2020-07-20", 2020, 7, 15, None],
-        [123, 320, 0.5341, 0.7895, "stragdng", "string2", "2020-07-15", "2020-07-23", 1999, 7, 12, None],
-        [124, 124, -0.8888, 0.7845, "sadadgng", "string2", "2020-07-15", "2020-07-22", 1969, 12, 13, None]
+        [
+            123, 321, 0.5342, 0.7895, "string", "string2", "2020-07-15", "2020-07-20",
+            "1994-03-23 16:23:01", "1994-03-24 16:24:02", 2020, 7, 15, None
+        ],
+        [
+            123, 320, 0.5341, 0.7895, "stragdng", "string2", "2020-07-15", "2020-07-23",
+            "1939-12-30 23:59:59", "2008-01-01 00:00:00", 1999, 7, 12, None
+        ],
+        [
+            124, 124, -0.8888, 0.7845, "sadadgng", "string2", "2020-07-15", "2020-07-22",
+            "2011-07-01 11:11:11", "2021-01-18 17:09:59", 1969, 12, 13, None
+        ]
     ], columns=cols)
-    self.df.dateA = pd.to_datetime(self.df.dateA)
-    self.df.dateB = pd.to_datetime(self.df.dateB)
+
+    self.df[["dateA", "dateB", "datetimeA", "datetimeB"]] = \
+        self.df[["dateA", "dateB", "datetimeA", "datetimeB"]].apply(pd.to_datetime)
+
     self.col_to_idx = {col: idx for idx, col in enumerate(cols)}
 
     cols2 = ["intA", "intB", "floatA", "newFloatB"]
@@ -427,7 +446,8 @@ class BaseTestQuery:
         func.date_year(self.data.c.dateA),
         func.date(self.data.c.dateYear, self.data.c.dateMonth, self.data.c.dateDay),
         self.data.c.dateA + func.date_delta(10),
-        self.data.c.dateA + func.date_delta(self.data.c.intA)
+        self.data.c.dateA + func.date_delta(self.data.c.intA),
+        func.time_diff(self.data.c.dateB, self.data.c.dateA)
     )
 
     result_df = self.query_to_df(query)
@@ -448,6 +468,61 @@ class BaseTestQuery:
 
       assert result[3] == date_a + timedelta(days=10)
       assert result[4] == date_a + timedelta(days=int_a)
+
+      if isinstance(self.data, DBTableData):
+        assert result[5] == (date_b - date_a)
+      else:
+        assert result[5] == relativedelta(date_b, date_a)
+
+    query = self.data.query.select(
+        func.extract(self.data.c.datetimeA, "year").label("year"),
+        func.extract(self.data.c.datetimeA, "month").label("month"),
+        func.extract(self.data.c.datetimeA, "day").label("day"),
+        func.extract(self.data.c.datetimeA, "hour").label("hour"),
+        func.extract(self.data.c.datetimeA, "minute").label("minute"),
+        func.extract(self.data.c.datetimeA, "second").label("second")
+    )
+
+    result_df = self.query_to_df(query)
+
+    data_values = [[x.year, x.month, x.day, x.hour, x.minute, x.second] for x in self.data.to_df()["datetimeA"]]
+    daqm_values = result_df.values
+    assert (np.array(data_values) == daqm_values).all()
+
+    query = self.data.query.select(
+        func.extract(
+            func.time_diff(self.data.c.datetimeB, self.data.c.datetimeA),
+            "year"
+        ).label("year"),
+        func.extract(
+            func.time_diff(self.data.c.datetimeB, self.data.c.datetimeA),
+            "month"
+        ).label("month"),
+        func.extract(
+            func.time_diff(self.data.c.datetimeB, self.data.c.datetimeA),
+            "day"
+        ).label("day"),
+        func.extract(
+            func.time_diff(self.data.c.datetimeB, self.data.c.datetimeA),
+            "hour"
+        ).label("hour"),
+        func.extract(
+            func.time_diff(self.data.c.datetimeB, self.data.c.datetimeA),
+            "minute"
+        ).label("minute"),
+        func.extract(
+            func.time_diff(self.data.c.datetimeB, self.data.c.datetimeA),
+            "second"
+        ).label("second")
+    )
+    result_df = self.query_to_df(query)
+
+    data_df = self.data.to_df()
+    temp = data_df.apply(lambda x: relativedelta(x["datetimeB"], x["datetimeA"]), axis=1)
+    data_values = [[x.years, x.months, x.days, x.hours, x.minutes, x.seconds] for x in temp]
+
+    daqm_values = result_df.values
+    assert (np.array(data_values) == daqm_values).all()
 
   def test_rank_function(self):
     # TODO
@@ -597,6 +672,34 @@ class BaseTestQuery:
     )
     result = self.query_to_df(query)
     assert [row == 123 for row in result["intA"]]
+
+  def test_between(self):
+    query = self.data.query.select(
+        between(self.data.c.dateB, self.data.c.dateA, self.data.c.datetimeB).label("btw_datetime"),
+        between(self.data.c.intA, self.data.c.floatB, self.data.c.intB).label("btw_number"),
+        between(self.data.c.intA, self.data.c.floatB, 123).label("btw_num_n_col"),
+        between(self.data.c.stringA, "strb", self.data.c.stringB).label("btw_str_n_col"),
+        between(8, self.data.c.dateMonth, self.data.c.dateDay).label("btw_num_n_col2")
+    )
+    result_df = self.query_to_df(query)
+
+    for source, result in zip(self.data.to_df().values, result_df.values):
+      date_a = source[self.col_to_idx["dateA"]]
+      date_b = source[self.col_to_idx["dateB"]]
+      datetime_b = source[self.col_to_idx["datetimeB"]]
+      int_a = source[self.col_to_idx["intA"]]
+      int_b = source[self.col_to_idx["intB"]]
+      float_b = source[self.col_to_idx["floatB"]]
+      string_a = source[self.col_to_idx["stringA"]]
+      string_b = source[self.col_to_idx["stringB"]]
+      date_month = source[self.col_to_idx["dateMonth"]]
+      date_day = source[self.col_to_idx["dateDay"]]
+
+      assert result[0] == (date_a <= date_b and date_b <= datetime_b)
+      assert result[1] == (float_b <= int_a and int_a <= int_b)
+      assert result[2] == (float_b <= int_a and int_a <= 123)
+      assert result[3] == ("strb" <= string_a and string_a <= string_b)
+      assert result[4] == (date_month <= 8 and 8 <= date_day)
 
   def test_cast(self):
     query = self.data.query.select(

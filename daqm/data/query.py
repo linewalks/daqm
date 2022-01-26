@@ -426,7 +426,7 @@ class QueryFunction:
   @staticmethod
   def date_diff(end_date_col: Column, start_date_col: Column) -> FunctionalColumn:
     """
-    날짜 차이
+    날짜 차이를 일수(unit: day)로 나타냅니다.
 
     :param end_date_col: 종료일
     :param start_date_col: 시작일
@@ -461,6 +461,32 @@ class QueryFunction:
     """
     col = Column.cast(col)
     return FunctionalColumn("date_delta", col)
+
+  @staticmethod
+  def time_diff(end_datetime_col: Column, start_datetime_col: Column) -> FunctionalColumn:
+    """
+    날짜(date, datetime) 간의 차이를 나타냅니다.
+    db: return timedelta type
+    data_frame: return relativedelta type
+
+    :param end_date_col: 종료일
+    :param start_date_col: 시작일
+    """
+    return FunctionalColumn("time_diff", end_datetime_col, start_datetime_col)
+
+  @staticmethod
+  def extract(col: Column, field_value: str) -> FunctionalColumn:
+    """
+    날짜(date, datetime)와 time interval(timedelta, relativedelta, etc.)에서
+    ("year", "month", "day", "hour", "minute", "second") 값을 추출합니다.
+    
+    :param col: 추출 대상 날짜 또는 time interval
+    :param field_value: 추출하는 정보
+    """
+    valid_field = ("year", "month", "day", "hour", "minute", "second")
+    if field_value not in valid_field:
+      raise ValueError(f"Expected field value: {field_value!r} to be one of {valid_field}")
+    return FunctionalColumn("extract", col, field_value=field_value)
 
   # Rank Functions
   @staticmethod
