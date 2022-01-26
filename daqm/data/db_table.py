@@ -122,6 +122,8 @@ class DBTableQuery:
         query = f"round({self.query_map[col.columns[0]]}::numeric, {col.options['decimals']})"
       elif col.func in ("ceil", "trunc", "floor"):
         query = f"{col.func}({self.query_map[col.columns[0]]}::numeric)"
+      elif col.func == "power":
+        query = f"power({self.query_map[col.columns[0]]}, {self.query_map[col.columns[1]]})"
       elif col.func == "rank":
         query = "rank() over ("
         if col.columns[1] is not None:

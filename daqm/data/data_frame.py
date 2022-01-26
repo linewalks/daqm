@@ -168,6 +168,10 @@ class DataFrameQuery:
         res_col = np.trunc(df[col.columns[0].name])
       elif col.func == "floor":
         res_col = np.floor(df[col.columns[0].name])
+      elif col.func == "power":
+        base = col.columns[0].value if isinstance(col.columns[0], ConstantColumn) else df[col.columns[0].name]
+        exponent = col.columns[1].value if isinstance(col.columns[1], ConstantColumn) else df[col.columns[1].name]
+        res_col = np.power(base, exponent)
       elif col.func == "rank":
         if col.columns[1] is None:
           res_col = df[col.columns[0].name].rank()
