@@ -32,6 +32,7 @@ class Query:
     self.groupby_list = []
     self.groupby_set = set()
     self.orderby_list = []
+    self.distinct_yn_bool = False
 
   def select(self, *cols: Union[Column, List[Column]]):
     """
@@ -151,6 +152,15 @@ class Query:
     :return: self
     """
     self.where_list.extend(condition_args)
+    return self
+  
+  def distinct(self):
+    """
+    테이블 내 모든 컬럼에 대해 중복값을 제거합니다.
+    DAQM 쿼리문의 가장 마지막에 실행됩니다.
+    구현 동작 방법 이해 (SQL): select distinct * from {distinct 이전 daqm 쿼리 실행 결과} tbl; 
+    """
+    self.distinct_yn_bool = True
     return self
 
   def _find_columns_in_children(

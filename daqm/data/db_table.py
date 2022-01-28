@@ -339,6 +339,8 @@ class DBTableQuery:
       query += " group by " + ", ".join(groupby_queries)
     if orderby_queries:
       query += " order by " + ", ".join(orderby_queries)
+    if self.query.distinct_yn_bool:
+      query = f"select distinct * from ({query}) tbl"
 
     self.sql = query
 

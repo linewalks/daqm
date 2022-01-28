@@ -735,6 +735,42 @@ class BaseTestQuery:
     assert [types == "float" for types in result_df["cast_real"].map(type)]
     assert [types == "str" for types in result_df["cast_varchar"].map(type)]
 
+  def test_distinct(self):
+    query_1 = self.data.query.select(
+        self.data.c.intA
+    ).distinct()
+
+    query_2 = self.data.query.select(
+        self.data.c.intA,
+        self.data.c.intB
+    ).distinct()
+
+    for query, cols in zip([query_1, query_2], [["intA"], ["intA", "intB"]]):
+      result_df = self.query_to_df(query)
+      result_df = result_df.sort_values(by=result_df.columns.to_list())
+
+      df = self.data.to_df()[cols].drop_duplicates()
+      df = df.sort_values(by=df.columns.to_list())
+
+      assert (result_df.values == df.values).all()
+
+    query_3 = self.data.query.select(
+        self.data.c.intA,
+        self.data.c.intD
+    ).where(
+        and_(
+            self.data.c.intA == 123,
+            self.data.c.intD == 4
+        )
+    ).distinct()
+    result_df = self.query_to_df(query_3)
+    result_df = result_df.sort_values(by=result_df.columns.to_list())
+
+    df = self.data.to_df().query("(intA == 123) and (intD == 4)")[["intA", "intD"]].drop_duplicates()
+    df = df.sort_values(by=df.columns.to_list())
+
+    assert (result_df.values == df.values).all()
+
   def test_apply_function(self):
     def apply_func(row):
       new_row = []

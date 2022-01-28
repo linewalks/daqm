@@ -96,6 +96,7 @@ class DataFrameQuery:
       self._parse_groupby()
     else:
       self._parse_normal()
+    self._parse_distinct()
 
   @staticmethod
   def _check_and_add_column(
@@ -382,6 +383,13 @@ class DataFrameQuery:
           how=how,
           suffixes=suffixes
       )
+
+  def _parse_distinct(self):
+    """
+    distinct문 Parsing
+    """
+    if self.query.distinct_yn_bool:
+      self.df = self.df.drop_duplicates()
 
   def _is_array_agg(self, agg_type):
     """
