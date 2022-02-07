@@ -71,6 +71,7 @@ class BaseTestQuery:
   def create_data(self):
     cols = [
         "intA", "intB",
+        "intC", "intD",
         "floatA", "floatB",
         "stringA", "stringB",
         "dateA", "dateB",
@@ -79,15 +80,15 @@ class BaseTestQuery:
         "null"]
     self.df = pd.DataFrame([
         [
-            123, 321, 0.5342, 0.7895, "string", "string2", "2020-07-15", "2020-07-20",
+            123, 321, 2, 4, 0.5342, 0.7895, "string", "string2", "2020-07-15", "2020-07-20",
             "1994-03-23 16:23:01", "1994-03-24 16:24:02", 2020, 7, 15, None
         ],
         [
-            123, 320, 0.5341, 0.7895, "stragdng", "string2", "2020-07-15", "2020-07-23",
+            123, 320, 3, 3, 0.5341, 0.7895, "stragdng", "string2", "2020-07-15", "2020-07-23",
             "1939-12-30 23:59:59", "2008-01-01 00:00:00", 1999, 7, 12, None
         ],
         [
-            124, 124, -0.8888, 0.7845, "sadadgng", "string2", "2020-07-15", "2020-07-22",
+            124, 124, 5, 4, -0.8888, 0.7845, "sadadgng", "string2", "2020-07-15", "2020-07-22",
             "2011-07-01 11:11:11", "2021-01-18 17:09:59", 1969, 12, 13, None
         ]
     ], columns=cols)
@@ -424,7 +425,10 @@ class BaseTestQuery:
         func.round(self.data.c.floatA, decimals),
         func.ceil(self.data.c.floatA),
         func.trunc(self.data.c.floatA),
-        func.floor(self.data.c.floatA)
+        func.floor(self.data.c.floatA),
+        func.power(self.data.c.intC, self.data.c.intD),
+        func.power(self.data.c.intC, 2),
+        func.power(2, self.data.c.intD)
     )
 
     result_df = self.query_to_df(query)
@@ -432,6 +436,8 @@ class BaseTestQuery:
     for source, result in zip(self.data.to_df().values, result_df.values):
       float_a = source[self.col_to_idx["floatA"]]
       float_b = source[self.col_to_idx["floatB"]]
+      int_c = source[self.col_to_idx["intC"]]
+      int_d = source[self.col_to_idx["intD"]]
 
       assert abs(float_a) == result[0]
       assert abs(float_b) == result[1]
@@ -439,6 +445,9 @@ class BaseTestQuery:
       assert math.ceil(float_a) == result[3]
       assert math.trunc(float_a) == result[4]
       assert math.floor(float_a) == result[5]
+      assert int_c**int_d == result[6]
+      assert int_c**2 == result[7]
+      assert 2**int_d == result[8]
 
   def test_date_function(self):
     query = self.data.query.select(
@@ -725,6 +734,42 @@ class BaseTestQuery:
     assert [types == "datetime.time" for types in result_df["cast_time"].map(type)]
     assert [types == "float" for types in result_df["cast_real"].map(type)]
     assert [types == "str" for types in result_df["cast_varchar"].map(type)]
+
+  def test_distinct(self):
+    query_1 = self.data.query.select(
+        self.data.c.intA
+    ).distinct()
+
+    query_2 = self.data.query.select(
+        self.data.c.intA,
+        self.data.c.intB
+    ).distinct()
+
+    for query, cols in zip([query_1, query_2], [["intA"], ["intA", "intB"]]):
+      result_df = self.query_to_df(query)
+      result_df = result_df.sort_values(by=result_df.columns.to_list())
+
+      df = self.data.to_df()[cols].drop_duplicates()
+      df = df.sort_values(by=df.columns.to_list())
+
+      assert (result_df.values == df.values).all()
+
+    query_3 = self.data.query.select(
+        self.data.c.intA,
+        self.data.c.intD
+    ).where(
+        and_(
+            self.data.c.intA == 123,
+            self.data.c.intD == 4
+        )
+    ).distinct()
+    result_df = self.query_to_df(query_3)
+    result_df = result_df.sort_values(by=result_df.columns.to_list())
+
+    df = self.data.to_df().query("(intA == 123) and (intD == 4)")[["intA", "intD"]].drop_duplicates()
+    df = df.sort_values(by=df.columns.to_list())
+
+    assert (result_df.values == df.values).all()
 
   def test_apply_function(self):
     def apply_func(row):

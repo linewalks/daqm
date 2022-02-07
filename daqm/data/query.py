@@ -32,6 +32,7 @@ class Query:
     self.groupby_list = []
     self.groupby_set = set()
     self.orderby_list = []
+    self.is_distinct = False
 
   def select(self, *cols: Union[Column, List[Column]]):
     """
@@ -151,6 +152,15 @@ class Query:
     :return: self
     """
     self.where_list.extend(condition_args)
+    return self
+  
+  def distinct(self):
+    """
+    테이블 내 모든 컬럼에 대해 중복값을 제거합니다.
+    DAQM 쿼리문의 가장 마지막에 실행됩니다.
+    구현 동작 방법 이해 (SQL): select distinct * from {distinct 이전 daqm 쿼리 실행 결과} tbl; 
+    """
+    self.is_distinct = True
     return self
 
   def _find_columns_in_children(
@@ -422,6 +432,18 @@ class QueryFunction:
     """
     return FunctionalColumn("floor", col)
 
+  @staticmethod
+  def power(m_col: Union[Column, int, float], n_col: Union[Column, int, float]) -> FunctionalColumn:
+    """
+    거듭제곱(m의 n거듭제곱, m^n) m raised to the nth power
+    
+    :param m_col: 거듭제곱 함수에 사용할 베이스
+    :param n_col: 거듭제곱 함수에 사용할 지수
+    """
+    m_col = Column.cast(m_col)
+    n_col = Column.cast(n_col)
+    return FunctionalColumn("power", m_col, n_col)
+
   # Date Functions
   @staticmethod
   def date_diff(end_date_col: Column, start_date_col: Column) -> FunctionalColumn:
@@ -558,7 +580,7 @@ class QueryFunction:
 
   # In
   @staticmethod
-  def in_(target_col: Column, in_cols: List[Union[int, float, str]]):
+  def in_(target_col: Column, in_cols: List[Union[int, float, str]]) -> FunctionalColumn:
     """
     컬럼의 값이 입력된 리스트 중 있는지 확인합니다. isin, in
 
@@ -570,7 +592,7 @@ class QueryFunction:
 
   # Not In
   @staticmethod
-  def notin_(target_col: Column, in_cols: List[Union[int, float, str]]):
+  def notin_(target_col: Column, in_cols: List[Union[int, float, str]]) -> FunctionalColumn:
     """
     컬럼의 값이 입력된 리스트 중 없는지 확인합니다. ~isin, not in
 

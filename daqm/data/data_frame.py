@@ -96,6 +96,7 @@ class DataFrameQuery:
       self._parse_groupby()
     else:
       self._parse_normal()
+    self._parse_distinct()
 
   @staticmethod
   def _check_and_add_column(
@@ -168,6 +169,10 @@ class DataFrameQuery:
         res_col = np.trunc(df[col.columns[0].name])
       elif col.func == "floor":
         res_col = np.floor(df[col.columns[0].name])
+      elif col.func == "power":
+        base = col.columns[0].value if isinstance(col.columns[0], ConstantColumn) else df[col.columns[0].name]
+        exponent = col.columns[1].value if isinstance(col.columns[1], ConstantColumn) else df[col.columns[1].name]
+        res_col = np.power(base, exponent)
       elif col.func == "rank":
         if col.columns[1] is None:
           res_col = df[col.columns[0].name].rank()
@@ -378,6 +383,13 @@ class DataFrameQuery:
           how=how,
           suffixes=suffixes
       )
+
+  def _parse_distinct(self):
+    """
+    distinct문 Parsing
+    """
+    if self.query.is_distinct:
+      self.df = self.df.drop_duplicates()
 
   def _is_array_agg(self, agg_type):
     """
