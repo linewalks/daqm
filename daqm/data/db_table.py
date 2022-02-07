@@ -328,6 +328,10 @@ class DBTableQuery:
       select_queries = ", ".join(select_queries)
     else:
       select_queries = "*"
+    
+    if self.query.is_distinct_boolean:
+      select_queries = "distinct " + select_queries
+    
     query = f"""
       select {select_queries}
       from {self.table_name} {self.data_table_alias_map[self.query.data]}
@@ -339,8 +343,6 @@ class DBTableQuery:
       query += " group by " + ", ".join(groupby_queries)
     if orderby_queries:
       query += " order by " + ", ".join(orderby_queries)
-    if self.query.distinct_yn_bool:
-      query = f"select distinct * from ({query}) tbl"
 
     self.sql = query
 
