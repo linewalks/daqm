@@ -32,7 +32,7 @@ class Query:
     self.groupby_list = []
     self.groupby_set = set()
     self.orderby_list = []
-    self.is_distinct_boolean = False
+    self.is_distinct = False
 
   def select(self, *cols: Union[Column, List[Column]]):
     """
@@ -160,7 +160,7 @@ class Query:
     DAQM 쿼리문의 가장 마지막에 실행됩니다.
     구현 동작 방법 이해 (SQL): select distinct * from {distinct 이전 daqm 쿼리 실행 결과} tbl; 
     """
-    self.is_distinct_boolean = True
+    self.is_distinct = True
     return self
 
   def _find_columns_in_children(

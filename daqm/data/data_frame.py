@@ -388,7 +388,7 @@ class DataFrameQuery:
     """
     distinct문 Parsing
     """
-    if self.query.is_distinct_boolean:
+    if self.query.is_distinct:
       self.df = self.df.drop_duplicates()
 
   def _is_array_agg(self, agg_type):

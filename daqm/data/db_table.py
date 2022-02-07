@@ -329,7 +329,7 @@ class DBTableQuery:
     else:
       select_queries = "*"
     
-    if self.query.is_distinct_boolean:
+    if self.query.is_distinct:
       select_queries = "distinct " + select_queries
     
     query = f"""
