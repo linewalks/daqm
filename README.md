@@ -8,6 +8,7 @@ Data Query Machine!
 #### Query
 
 * Select
+    * Distinct
 * Group by
 * Order by
 * Join
@@ -20,20 +21,24 @@ Data Query Machine!
 * Min
 * Max
 * Average, Mean
+* Standard deviation
 * Count
 * Unique
 * Number of Unique
 * All
+* Percentile_cont, Percentile_disc
 * Absolute
 * Round
 * Ceil
 * Floor
 * Trunc
+* Power
 * Rank
 * Date Diff
 * Date Year
 * Date
 * Date Delta
+* Time Diff (Age)
 * Case
 * Coalesce
 * Greatest
@@ -43,6 +48,7 @@ Data Query Machine!
 * In
 * Not In
 * Cast
+* Extract
 
 #### Operator
 
@@ -63,6 +69,7 @@ Data Query Machine!
 * Not ILike
 * And
 * Or
+* Between
 
 #### Data Type
 
