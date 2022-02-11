@@ -209,7 +209,7 @@ class DataFrameQuery:
         else:
           if np.issubdtype(df[col.columns[0].name].dtype, np.timedelta64):
             raise ValueError(
-                "You might consider method = 'relativedelta' in 'time_diff' function when using 'extract' with 'time_diff' together."
+                "You might consider <method = 'relativedelta'> when using 'extract' with 'time_diff' together."
             )
           else:
             raise ValueError(
