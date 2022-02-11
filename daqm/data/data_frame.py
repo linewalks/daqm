@@ -200,7 +200,7 @@ class DataFrameQuery:
         if col.options["method"] == "relativedelta":
           res_col = df.apply(lambda x: relativedelta(x[col.columns[0].name], x[col.columns[1].name]), axis=1)
         else:
-          res_col = df[col.columns[0].name] - df[col.columns[1].name] # mothod == "timedelta"
+          res_col = df[col.columns[0].name] - df[col.columns[1].name] # method == "timedelta"
       elif col.func == "extract":
         if np.issubdtype(df[col.columns[0].name].dtype, relativedelta):
           res_col = df.apply(lambda x: eval(f"x[col.columns[0].name].{col.options['field_value']}s"), axis=1)
@@ -209,7 +209,7 @@ class DataFrameQuery:
         else:
           if np.issubdtype(df[col.columns[0].name].dtype, np.timedelta64):
             raise ValueError(
-                "You might consider <method = 'relativedelta'> when using 'extract' with 'time_diff' together.")
+                "You must consider <method = 'relativedelta'> when using 'extract' with 'time_diff' together.")
           else:
             raise ValueError(
                 "Expected column type to be one of ('date', 'datetime', 'relativedelta'), you might need to add explicit type casts.")
