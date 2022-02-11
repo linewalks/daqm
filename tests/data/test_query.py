@@ -15,6 +15,7 @@ from daqm.data.columns import (
     OperatedColumn,
     and_, or_, between
 )
+from daqm.data.data_frame import DataFrameData
 from daqm.data.db_table import DBTableData
 from daqm.data.query import Query, func
 from tests.utils import TEST_ORDER_DATA
@@ -456,7 +457,8 @@ class BaseTestQuery:
         func.date(self.data.c.dateYear, self.data.c.dateMonth, self.data.c.dateDay),
         self.data.c.dateA + func.date_delta(10),
         self.data.c.dateA + func.date_delta(self.data.c.intA),
-        func.time_diff(self.data.c.dateB, self.data.c.dateA)
+        func.time_diff(self.data.c.dateB, self.data.c.dateA, method="timedelta"),
+        func.time_diff(self.data.c.datetimeB, self.data.c.datetimeA, method="relativedelta")
     )
 
     result_df = self.query_to_df(query)
@@ -464,7 +466,11 @@ class BaseTestQuery:
     for source, result in zip(self.data.to_df().values, result_df.values):
       date_a = source[self.col_to_idx["dateA"]]
       date_b = source[self.col_to_idx["dateB"]]
+
       int_a = source[self.col_to_idx["intA"]]
+
+      datetime_a = source[self.col_to_idx["datetimeA"]]
+      datetime_b = source[self.col_to_idx["datetimeB"]]
 
       date_year = source[self.col_to_idx["dateYear"]]
       date_month = source[self.col_to_idx["dateMonth"]]
@@ -478,10 +484,10 @@ class BaseTestQuery:
       assert result[3] == date_a + timedelta(days=10)
       assert result[4] == date_a + timedelta(days=int_a)
 
-      if isinstance(self.data, DBTableData):
-        assert result[5] == (date_b - date_a)
-      else:
-        assert result[5] == relativedelta(date_b, date_a)
+      assert result[5] == (date_b - date_a)
+      
+      if isinstance(self.data, DataFrameData):
+        assert result[6] == relativedelta(datetime_b, datetime_a)
 
     query = self.data.query.select(
         func.extract(self.data.c.datetimeA, "year").label("year"),
@@ -500,27 +506,27 @@ class BaseTestQuery:
 
     query = self.data.query.select(
         func.extract(
-            func.time_diff(self.data.c.datetimeB, self.data.c.datetimeA),
+            func.time_diff(self.data.c.datetimeB, self.data.c.datetimeA, method="relativedelta"),
             "year"
         ).label("year"),
         func.extract(
-            func.time_diff(self.data.c.datetimeB, self.data.c.datetimeA),
+            func.time_diff(self.data.c.datetimeB, self.data.c.datetimeA, method="relativedelta"),
             "month"
         ).label("month"),
         func.extract(
-            func.time_diff(self.data.c.datetimeB, self.data.c.datetimeA),
+            func.time_diff(self.data.c.datetimeB, self.data.c.datetimeA, method="relativedelta"),
             "day"
         ).label("day"),
         func.extract(
-            func.time_diff(self.data.c.datetimeB, self.data.c.datetimeA),
+            func.time_diff(self.data.c.datetimeB, self.data.c.datetimeA, method="relativedelta"),
             "hour"
         ).label("hour"),
         func.extract(
-            func.time_diff(self.data.c.datetimeB, self.data.c.datetimeA),
+            func.time_diff(self.data.c.datetimeB, self.data.c.datetimeA, method="relativedelta"),
             "minute"
         ).label("minute"),
         func.extract(
-            func.time_diff(self.data.c.datetimeB, self.data.c.datetimeA),
+            func.time_diff(self.data.c.datetimeB, self.data.c.datetimeA, method="relativedelta"),
             "second"
         ).label("second")
     )

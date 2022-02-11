@@ -485,16 +485,22 @@ class QueryFunction:
     return FunctionalColumn("date_delta", col)
 
   @staticmethod
-  def time_diff(end_datetime_col: Column, start_datetime_col: Column) -> FunctionalColumn:
+  def time_diff(end_datetime_col: Column, start_datetime_col: Column, method: str = "timedelta") -> FunctionalColumn:
     """
-    날짜(date, datetime) 간의 차이를 나타냅니다.
+    날짜(date, datetime)간의 차이를 나타냅니다.
     db: return timedelta type
-    data_frame: return relativedelta type
+    data_frame: return timedelta type (method: "timedelta") or relativedelta type (method: "relativedelta")
 
     :param end_date_col: 종료일
     :param start_date_col: 시작일
+    :param method: 날짜간의 차이를 구하는 방법 (dafault: "timedelta"), data_frame에서만 활용되는 인자
+    "timedelta"일 시, days hours:minutes:seconds 정보 반환,
+    "relativedelta"일 시, years months days hours:minutes:seconds 정보 반환
     """
-    return FunctionalColumn("time_diff", end_datetime_col, start_datetime_col)
+    method_tuple = ("timedelta", "relativedelta")
+    if method not in method_tuple:
+      raise ValueError(f"Expected field value: {method!r} to be one of {method_tuple}")
+    return FunctionalColumn("time_diff", end_datetime_col, start_datetime_col, method=method)
 
   @staticmethod
   def extract(col: Column, field_value: str) -> FunctionalColumn:
