@@ -209,12 +209,10 @@ class DataFrameQuery:
         else:
           if np.issubdtype(df[col.columns[0].name].dtype, np.timedelta64):
             raise ValueError(
-                "You might consider <method = 'relativedelta'> when using 'extract' with 'time_diff' together."
-            )
+                "You might consider <method = 'relativedelta'> when using 'extract' with 'time_diff' together.")
           else:
             raise ValueError(
-                "Expected column type to be one of ('date', 'datetime', 'relativedelta'), you might need to add explicit type casts."
-          )
+                "Expected column type to be one of ('date', 'datetime', 'relativedelta'), you might need to add explicit type casts.")
       elif col.func == "case":
         res_col = pd.Series(None, index=df.index)
         for idx in range(0, len(col.columns), 2):
