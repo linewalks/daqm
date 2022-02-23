@@ -140,7 +140,10 @@ class DBTableQuery:
         year_col = self.query_map[col.columns[0]]
         month_col = self.query_map[col.columns[1]]
         day_col = self.query_map[col.columns[2]]
-        query = f"date({year_col}::text || '-' ||   {month_col}::text || '-' ||  {day_col}::text)"
+        if col.options["replace_null"]:
+          query = f"to_date(concat_ws('-', {year_col}, {month_col}, {day_col}), 'YYYY-MM-DD')"
+        else:
+          query = f"date({year_col}::text || '-' ||   {month_col}::text || '-' ||  {day_col}::text)"
       elif col.func == "date_delta":
         query = f"cast({self.query_map[col.columns[0]]} || ' days' as interval)"
       elif col.func == "time_diff":

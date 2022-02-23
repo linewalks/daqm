@@ -186,10 +186,14 @@ class DataFrameQuery:
         year_col = col.columns[0].name
         month_col = col.columns[1].name
         day_col = col.columns[2].name
-        res_col = df.apply(lambda x: datetime(
-            int(x[year_col]),
-            int(x[month_col]),
-            int(x[day_col])), axis=1)
+        if col.options["replace_null"]:
+          df.fillna({year_col: 1, month_col: 1, day_col: 1}, inplace=True)
+        def _to_datetime_or_none(year, month, day):
+          if any(pd.isna([year, month, day])):
+            return None
+          else:
+            return datetime(int(year), int(month), int(day))
+        res_col = df.apply(lambda x: _to_datetime_or_none(x[year_col], x[month_col], x[day_col]), axis=1)
       elif col.func == "date_delta":
         value_col = col.columns[0]
         if isinstance(value_col, ConstantColumn):
