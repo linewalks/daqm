@@ -464,15 +464,16 @@ class QueryFunction:
     return FunctionalColumn("date_year", date_col)
 
   @staticmethod
-  def date(year_col: Column, month_col: Column, day_col: Column) -> FunctionalColumn:
+  def date(year_col: Column, month_col: Column, day_col: Column, replace_null: bool = False) -> FunctionalColumn:
     """
     날짜를 설정합니다.
 
     :param year_col: 연도 컬럼
     :param month_col: 월 컬럼
     :param day_col: 일 컬럼
+    :param replace_null: 연도, 월, 일에서 null/na 값이 존재할 시 1로 대체할지 여부 (default: False)
     """
-    return FunctionalColumn("date", year_col, month_col, day_col)
+    return FunctionalColumn("date", year_col, month_col, day_col, replace_null=replace_null)
 
   @staticmethod
   def date_delta(col: Column) -> FunctionalColumn:

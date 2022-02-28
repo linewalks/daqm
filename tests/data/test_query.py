@@ -458,7 +458,9 @@ class BaseTestQuery:
         self.data.c.dateA + func.date_delta(10),
         self.data.c.dateA + func.date_delta(self.data.c.intA),
         func.time_diff(self.data.c.dateB, self.data.c.dateA, method="timedelta"),
-        func.time_diff(self.data.c.datetimeB, self.data.c.datetimeA, method="relativedelta")
+        func.time_diff(self.data.c.datetimeB, self.data.c.datetimeA, method="relativedelta"),
+        func.date(self.data.c.dateYear, self.data.c.dateMonth, self.data.c.null, replace_null=False).label("replace_F"),
+        func.date(self.data.c.dateYear, self.data.c.dateMonth, self.data.c.null, replace_null=True).label("replace_T")
     )
 
     result_df = self.query_to_df(query)
@@ -488,6 +490,9 @@ class BaseTestQuery:
       
       if isinstance(self.data, DataFrameData):
         assert result[6] == relativedelta(datetime_b, datetime_a)
+        
+      assert result[7] == None
+      assert result[8] == date(date_year, date_month, 1)
 
     query = self.data.query.select(
         func.extract(self.data.c.datetimeA, "year").label("year"),
